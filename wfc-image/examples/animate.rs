@@ -49,6 +49,7 @@ fn main() {
         width,
         height,
         delay,
+        end_delay,
         pattern_size,
         all_orientations,
     ) = args_all! {
@@ -61,6 +62,7 @@ fn main() {
         opt::<u32>("x", "width", "width", "INT").with_default(48),
         opt::<u32>("y", "height", "height", "INT").with_default(48),
         opt::<u64>("d", "delay", "delay between steps", "MS"),
+        opt::<u64>("e", "end_delay", "delay after finish", "MS"),
         opt::<u32>("p", "pattern-size", "size of patterns in pixels", "INT").with_default(3),
         flag("a", "all-orientations", "all orientations"),
     }
@@ -112,6 +114,7 @@ fn main() {
     let mut wave = Wave::new(output_size);
     let mut context = Context::new();
     let delay = delay.map(Duration::from_millis);
+    let end_delay = end_delay.map(Duration::from_millis);
     'generate: loop {
         let forbid = Forbid {
             bottom_left_corner_id,
@@ -147,6 +150,9 @@ fn main() {
                         if forever {
                             continue 'generate;
                         } else {
+                            if let Some(end_delay) = end_delay {
+                                thread::sleep(end_delay);
+                            }
                             break 'generate;
                         }
                     }
